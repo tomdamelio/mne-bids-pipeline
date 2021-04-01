@@ -613,6 +613,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#config.event_repeated" class="md-nav__link">
+    event_repeated
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#config.conditions" class="md-nav__link">
     conditions
   </a>
@@ -1004,6 +1011,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#config.event_repeated" class="md-nav__link">
+    event_repeated
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#config.conditions" class="md-nav__link">
     conditions
   </a>
@@ -1084,6 +1098,36 @@ pipeline:
 <div class="highlight"><pre><span></span><code><span class="n">rename_events</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;audio_left&#39;</span><span class="p">:</span> <span class="s1">&#39;audio/left&#39;</span><span class="p">}</span>
 </code></pre></div></p>
 </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="config.event_repeated" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">event_repeated</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="s1">&#39;drop&#39;</span><span class="p">,</span> <span class="s1">&#39;merge&#39;</span><span class="p">]</span></code>
+
+
+<a href="#config.event_repeated" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+      <p>How to handle repeated events. We call events "repeated" if more than one event
+occurred at the exact same time point. Currently, MNE-Python cannot handle
+this situation gracefully when trying to create epochs, and will throw an
+error. To only keep the event of that time point ("first" here referring to
+the order that events appear in <code>*_events.tsv</code>), pass <code>'drop'</code>. You can also
+request to create a new type of event by merging repeated events by setting
+this to <code>'merge'</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code>'merge'</code> option is entirely untested in the MNE BIDS Pipeline as of
+April 1st, 2021.</p>
+</div>
     </div>
 
   </div>
