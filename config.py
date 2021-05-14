@@ -520,7 +520,7 @@ End time of the interpolation window in seconds.
 # -------------------
 # done in 02-frequency_filter.py
 
-filter_freq = Optional[Dict[str, Tuple[Optional[float], Optional[float]]]] = None
+filter_freq: Optional[Dict[str, Tuple[Optional[float], Optional[float]]]] = None
 
 
 """
