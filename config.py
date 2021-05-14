@@ -520,16 +520,18 @@ End time of the interpolation window in seconds.
 # -------------------
 # done in 02-frequency_filter.py
 
-l_freq: Optional[float] = None
-"""
-The low-frequency cut-off in the highpass filtering step.
-Keep it None if no highpass filtering should be applied.
-"""
+filter_freq = Optional[Dict[str, Tuple[Optional[float], Optional[float]]]] = None
 
-h_freq: Optional[float] = 40.
+
 """
-The high-frequency cut-off in the lowpass filtering step.
-Keep it None if no lowpass filtering should be applied.
+Low-frequency and high-frequency cut-off in the band-pass filtering step.
+Keep it None if no lowpass nor highpass filtering should be applied for any channel type.
+
+???+ example "Example"
+    ```python
+    filter_freq = None  # no band-pass filtering
+    filter_freq = dict(eeg=(None, 40), misc=(2, 40)) 
+    ```
 """
 
 ###############################################################################
