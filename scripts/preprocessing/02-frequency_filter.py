@@ -88,15 +88,16 @@ def run_filter(subject, run=None, session=None):
 
     logger.info(gen_log_message(message=msg, step=2, subject=subject,
                                 session=session, run=run))
-    if config.l_freq is None and config.h_freq is None:
+    if config.filter_freq is None:
         return
-
-    filter_kws = dict(l_freq=config.l_freq, h_freq=config.h_freq,
-                      l_trans_bandwidth=config.l_trans_bandwidth,
-                      h_trans_bandwidth=config.h_trans_bandwidth,
-                      filter_length='auto', phase='zero', fir_window='hamming',
-                      fir_design='firwin')
-    raw.filter(**filter_kws)
+    else:
+        for ch_type, (low, high) in config.filter_freq.items():
+            filter_kws = dict(l_freq=low, h_freq=high,
+                              l_trans_bandwidth=config.l_trans_bandwidth,
+                              h_trans_bandwidth=config.h_trans_bandwidth,
+                              filter_length='auto', phase='zero', fir_window='hamming',
+                              fir_design='firwin', picks= ch_type)
+            raw.filter(**filter_kws)
 
     if config.process_er:
         msg = (f'Filtering empty-room data between {config.l_freq} and '
