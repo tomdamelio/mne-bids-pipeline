@@ -58,6 +58,7 @@ the processing results. If ``None``, this will be
 ``derivatives/mne-bids-pipeline`` inside the BIDS root.
 """
 
+
 subjects_dir: Optional[PathLike] = None
 """
 Path to the directory that contains the MRI data files and their
@@ -145,6 +146,16 @@ is automatically excluded from regular analysis.
     did not understand the instructions, etc, ...)
     The ``emptyroom`` subject will be excluded automatically.
 """
+
+
+annotations_root: Optional[PathLike] = None
+"""
+The root of the directory from which the pipeline will take extra 
+annotations files.
+These files have to be named as follows: sub-[number subject]_annotations.fif
+(e.g. sub-01_annotations.fif). If ``None``, no extra annotations are provided.
+"""
+
 
 process_er: bool = False
 """
@@ -1438,6 +1449,8 @@ if "MNE_BIDS_STUDY_CONFIG" in os.environ:
 ###############################################################################
 # CHECKS
 # ------
+l_freq = filter_freq.get('eeg')[0] if 'eeg' in filter_freq  else filter_freq.get('meg')[0]
+h_freq = filter_freq.get('eeg')[1] if 'eeg' in filter_freq  else filter_freq.get('meg')[1]
 
 if (use_maxwell_filter and
         len(set(ch_types).intersection(('meg', 'grad', 'mag'))) == 0):
@@ -1494,12 +1507,12 @@ elif any([ch_type not in ('meg', 'mag', 'grad') for ch_type in ch_types]):
            'configuration.')
     raise ValueError(msg)
 
-if 'eeg' in ch_types:
-    if spatial_filter == 'ssp':
-        msg = ("You requested SSP for EEG data via spatial_filter='ssp'. "
-               "However, this is not presently supported. Please use ICA "
-               "instead by setting spatial_filter='ica'.")
-        raise ValueError(msg)
+#if 'eeg' in ch_types:
+#    if spatial_filter == 'ssp':
+#        msg = ("You requested SSP for EEG data via spatial_filter='ssp'. "
+#               "However, this is not presently supported. Please use ICA "
+#               "instead by setting spatial_filter='ica'.")
+#        raise ValueError(msg)
 
 if on_error not in ('continue', 'abort', 'debug'):
     msg = (f"on_error must be one of 'continue', 'debug' or 'abort', "
@@ -1835,11 +1848,11 @@ def get_channels_to_analyze(info) -> List[str]:
         if 'grad' in ch_types:
             pick_idx += mne.pick_types(info, meg='grad', exclude=[])
         if 'meg' in ch_types:
-            pick_idx = mne.pick_types(info, meg=True, eog=True, ecg=True,
+            pick_idx = mne.pick_types(info, meg=True, eog=True, ecg=True, misc=True,
                                       exclude=[])
     elif ch_types == ['eeg']:
         pick_idx = mne.pick_types(info, meg=False, eeg=True, eog=True,
-                                  ecg=True, exclude=[])
+                                  ecg=True, misc=True, exclude=[])
     else:
         raise RuntimeError('Something unexpected happened. Please contact '
                            'the mne-bids-pipeline developers. Thank you.')

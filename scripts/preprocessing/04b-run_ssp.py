@@ -34,8 +34,10 @@ def _get_global_reject_ssp(raw, decim):
     else:
         reject_eog = None
 
-    ecg_epochs = create_ecg_epochs(raw)
-    # we will always have an ECG as long as there are magnetometers
+    if 'ecg' in raw:
+        ecg_epochs = create_ecg_epochs(raw)
+    else:
+        ecg_epochs = []
     if len(ecg_epochs) >= 5:
         reject_ecg = get_rejection_threshold(ecg_epochs, decim=decim)
         # here we want the eog
@@ -45,6 +47,11 @@ def _get_global_reject_ssp(raw, decim):
     if reject_eog is None and reject_ecg is not None:
         # Do not keep the eog.
         reject_eog = {k: v for k, v in reject_ecg.items() if k != 'eog'}
+        
+    if reject_ecg is None and reject_eog is not None:
+        # Do not keep the ecg.
+        reject_ecg = {k: v for k, v in reject_eog.items() if k != 'eog'}
+        
     return reject_eog, reject_ecg
 
 
@@ -103,10 +110,13 @@ def run_ssp(subject, session=None):
     msg = 'Computing SSPs for ECG'
     logger.debug(gen_log_message(message=msg, step=4, subject=subject,
                                  session=session))
-    ecg_projs, _ = compute_proj_ecg(
-        raw, n_grad=config.n_proj_ecg_grad, n_mag=config.n_proj_ecg_mag,
-        n_eeg=config.n_proj_ecg_eeg, average=config.average_projs,
-        reject=reject_ecg_)
+    if 'ecg' in raw:
+        ecg_projs, _ = compute_proj_ecg(
+            raw, n_grad=config.n_proj_ecg_grad, n_mag=config.n_proj_ecg_mag,
+            n_eeg=config.n_proj_ecg_eeg, average=config.average_ecg_projs,
+            reject=reject_ecg_)
+    else:
+        ecg_projs = []
 
     if not ecg_projs:
         msg = 'No ECG events could be found. No ECG projectors computed.'
@@ -122,10 +132,13 @@ def run_ssp(subject, session=None):
     else:
         ch_names = None
 
-    eog_projs, _ = compute_proj_eog(
-        raw, n_grad=config.n_proj_eog_grad, n_mag=config.n_proj_eog_mag,
-        n_eeg=config.n_proj_eog_eeg, average=config.average_eog_projs,
-        reject=reject_eog_)
+    if 'eog' in raw:
+        eog_projs, _ = compute_proj_eog(
+            raw, n_grad=config.n_proj_eog_grad, n_mag=config.n_proj_eog_mag,
+            n_eeg=config.n_proj_eog_eeg, average=config.average_eog_projs,
+            reject=reject_eog_)
+    else:
+        eog_projs = []
 
     if not eog_projs:
         msg = 'No EOG events could be found. No EOG projectors computed.'

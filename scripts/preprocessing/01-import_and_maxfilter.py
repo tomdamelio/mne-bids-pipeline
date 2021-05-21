@@ -32,6 +32,7 @@ https://github.com/bids-standard/bids-specification/pull/265
 import itertools
 import logging
 from pathlib import Path
+import os.path as op
 
 import numpy as np
 import pandas as pd
@@ -118,6 +119,14 @@ def rename_events(raw, subject, session):
 
     descriptions = np.asarray(descriptions, dtype=str)
     raw.annotations.description = descriptions
+    
+    if config.annotations_root is not None:
+        # read annotations
+        fname_annot = op.join(config.annotations_root,'sub-'+ subject + '_annotations.fif')
+        annot_from_file = mne.read_annotations(fname=fname_annot, sfreq=raw.info['sfreq'])
+        # add annotations to data 
+        raw.set_annotations(annot_from_file)
+        
 
 
 def find_bad_channels(raw, subject, session, task, run):
@@ -224,7 +233,7 @@ def load_data(bids_path):
     session = bids_path.session
 
     raw = read_raw_bids(bids_path=bids_path)
-
+    
     if subject != 'emptyroom':
         # Crop the data.
         if config.crop is not None:
@@ -237,7 +246,7 @@ def load_data(bids_path):
     raw.load_data()
     if hasattr(raw, 'fix_mag_coil_types'):
         raw.fix_mag_coil_types()
-
+    
     montage_name = config.eeg_template_montage
     if config.get_datatype() == 'eeg' and montage_name:
         msg = (f'Setting EEG channel locations to template montage: '
