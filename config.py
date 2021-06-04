@@ -582,7 +582,7 @@ can be used for resampling raw data. ``1`` means no decimation.
 # AUTOMATIC REJECTION OF ARTIFACTS
 # --------------------------------
 
-reject: Union[dict, Literal['auto']] = {
+reject: Union[dict, Literal['auto'], Literal['local']] = {
     'grad': 4000e-13, 'mag': 4e-12, 'eeg': 150e-6}
 """
 The rejection limits to mark epochs as bads.
@@ -1701,6 +1701,10 @@ def _get_reject(
 
     if reject == 'auto':
         return 'auto'
+    
+    if reject == 'local':
+        return 'local'
+    
 
     reject_ = dict(reject)  # Avoid clash with global variable.
 

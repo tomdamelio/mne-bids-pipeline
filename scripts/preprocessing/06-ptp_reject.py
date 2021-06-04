@@ -18,7 +18,9 @@ from mne_bids import BIDSPath
 
 import config
 from config import gen_log_message, on_error, failsafe_run
-from autoreject import get_rejection_threshold
+from autoreject import get_rejection_threshold, AutoReject
+
+import numpy as np
 
 logger = logging.getLogger('mne-bids-pipeline')
 
@@ -50,7 +52,7 @@ def drop_ptp(subject, session=None):
     # Get rejection parameters and drop bad epochs
     reject = config.get_reject()
     if reject == 'auto':
-        msg = "Using AutoReject to estimate reject parameter"
+        msg = "Using AutoReject (global) to estimate reject parameter"
         logger.info(gen_log_message(message=msg, step=3, subject=subject,
                                     session=session))
         epochs.load_data()  # normally projs have been applied already
@@ -60,11 +62,23 @@ def drop_ptp(subject, session=None):
         msg = f"reject = {reject}"
         logger.info(gen_log_message(message=msg, step=3, subject=subject,
                                     session=session))
+    elif reject == 'local':
+        msg = "Using AutoReject (local) to estimate reject parameter"
+        logger.info(gen_log_message(message=msg, step=3, subject=subject,
+                                    session=session))
+        epochs.load_data()  # normally projs have been applied already
+        #epochs.apply_proj()     
+        ar = AutoReject()
 
     n_epochs_before_reject = len(epochs)
     epochs.reject_tmin = config.reject_tmin
     epochs.reject_tmax = config.reject_tmax
-    epochs.drop_bad(reject=reject)
+    
+    if reject == 'local':
+        epochs = ar.fit_transform(epochs)
+    else:
+        epochs.drop_bad(reject=reject)
+    
     n_epochs_after_reject = len(epochs)
 
     if 0 < n_epochs_after_reject < 0.5 * n_epochs_before_reject:

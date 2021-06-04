@@ -18,6 +18,7 @@ from mne.parallel import parallel_func
 from mne_bids import BIDSPath
 import config
 from config import gen_log_message, on_error, failsafe_run
+import os.path as op
 
 logger = logging.getLogger('mne-bids-pipeline')
 
@@ -59,6 +60,13 @@ def run_epochs(subject, session=None):
         raw = raw_list[0]
     else:
         raw = mne.concatenate_raws(raw_list)
+    
+    if config.annotations_root is not None:
+        # read annotations
+        fname_annot = op.join(config.annotations_root,'sub-'+ subject + '_annotations.fif')
+        annot_from_file = mne.read_annotations(fname=fname_annot, sfreq=raw.info['sfreq'])
+        # add annotations to data 
+        raw.set_annotations(annot_from_file)
 
     # Compute events for rest tasks
     if config.task == 'rest':
