@@ -118,15 +118,7 @@ def rename_events(raw, subject, session):
                 descriptions[idx] = new_event_name
 
     descriptions = np.asarray(descriptions, dtype=str)
-    raw.annotations.description = descriptions
-    
-    if config.annotations_root is not None:
-        # read annotations
-        fname_annot = op.join(config.annotations_root,'sub-'+ subject + '_annotations.fif')
-        annot_from_file = mne.read_annotations(fname=fname_annot, sfreq=raw.info['sfreq'])
-        # add annotations to data 
-        raw.set_annotations(annot_from_file)
-        
+    raw.annotations.description = descriptions  
 
 
 def find_bad_channels(raw, subject, session, task, run):
@@ -294,7 +286,9 @@ def load_data(bids_path):
         msg = f'Dropping channels: {", ".join(config.drop_channels)}'
         logger.info(gen_log_message(message=msg, step=1, subject=subject,
                                     session=session))
-        raw.drop_channels(config.drop_channels)
+        for x in config.drop_channels:
+            if x in raw.info['ch_names']:
+                raw.drop_channels(x)
 
     return raw
 
