@@ -68,7 +68,7 @@ def drop_ptp(subject, session=None):
                                     session=session))
         epochs.load_data()  # normally projs have been applied already
         #epochs.apply_proj()     
-        ar = AutoReject(n_interpolates = np.array([1, 4, 8]))
+        ar = AutoReject(n_interpolates = np.array([1, 4, 8, 16]))
 
     n_epochs_before_reject = len(epochs)
     epochs.reject_tmin = config.reject_tmin

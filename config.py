@@ -1856,7 +1856,7 @@ def get_channels_to_analyze(info) -> List[str]:
                                       exclude=[])
     elif ch_types == ['eeg']:
         pick_idx = mne.pick_types(info, meg=False, eeg=True, eog=True,
-                                  ecg=True, misc=True, exclude=[])
+                                  ecg=True, misc=True, emg=True, exclude=[])
     else:
         raise RuntimeError('Something unexpected happened. Please contact '
                            'the mne-bids-pipeline developers. Thank you.')
